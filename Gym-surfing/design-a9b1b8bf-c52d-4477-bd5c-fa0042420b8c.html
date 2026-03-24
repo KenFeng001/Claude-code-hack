@@ -1,0 +1,533 @@
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+    <title vid="4">Gym &amp; Food Tracker</title>
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" vid="5">
+
+    <style vid="6">
+        :root {
+            
+            --bg-base: #000000;
+            --panel-bg: #191919;
+            --panel-inner: #252525;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8E8E93;
+            
+            
+            --accent-orange: #FF8A00;
+            --tag-red: #D58085;
+            --tag-blue: #8CB4D6;
+            --tag-dark: #333333;
+            --dot-green: #4CD964;
+            
+            
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-pill: 9999px;
+            
+            
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            background-color: var(--bg-base);
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+
+        
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: max(env(safe-area-inset-top, 16px), 16px) 16px max(env(safe-area-inset-bottom, 16px), 16px) 16px;
+        }
+
+        
+        .interactive {
+            pointer-events: auto;
+        }
+
+        
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        
+        .top-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        
+        .weather-widget {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 10px 16px;
+            border-radius: var(--radius-pill);
+            background-color: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .weather-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--text-primary);
+        }
+
+        .weather-temp {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        
+        .icon-pill {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-pill);
+            background-color: var(--panel-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        
+        .filters-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px; 
+            scrollbar-width: none; 
+        }
+        
+        .filters-scroll::-webkit-scrollbar {
+            display: none; 
+        }
+
+        .filter-tag {
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+            transition: opacity 0.2s;
+            border: none;
+            outline: none;
+        }
+
+        .filter-tag:active {
+            opacity: 0.8;
+        }
+
+        
+        .tag-all { background: var(--text-primary); color: var(--bg-base); }
+        .tag-gym { background: var(--tag-red); color: var(--bg-base); }
+        .tag-food { background: var(--tag-blue); color: var(--bg-base); }
+        .tag-saved { background: var(--tag-dark); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); }
+
+        
+        .calendar-widget {
+            padding: var(--space-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            margin-bottom: 8px;
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .widget-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            background: var(--panel-inner);
+            border: none;
+            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        
+        .nested-card {
+            background: var(--panel-inner);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        
+        .texture-grid {
+            background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 12px 12px;
+        }
+
+        .booking-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .booking-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .booking-time {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--dot-green);
+            box-shadow: 0 0 10px rgba(76, 217, 100, 0.4);
+        }
+
+        .booking-place {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        
+        .avatar-group {
+            display: flex;
+            flex-direction: row-reverse; 
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--panel-inner);
+            margin-left: -12px;
+            background-color: var(--tag-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar:last-child {
+            margin-left: 0;
+        }
+
+        
+        .card-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-orange);
+            color: var(--bg-base);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: -0.2px;
+            flex-grow: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: -0.2px;
+        }
+
+        
+        .list-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-header {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 4px;
+        }
+
+        .list-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--panel-inner);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+
+        .list-text {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .list-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 2px solid var(--panel-bg);
+            transition: transform 0.2s;
+        }
+        .custom-marker:active {
+            transform: scale(0.9);
+        }
+        .marker-gym { background-color: var(--tag-red); width: 24px; height: 24px; }
+        .marker-food { background-color: var(--tag-blue); width: 24px; height: 24px; }
+        .marker-user { background-color: var(--text-primary); width: 20px; height: 20px; box-shadow: 0 0 0 4px rgba(255,255,255,0.2); }
+
+        
+        svg {
+            display: block;
+        }
+    </style>
+</head>
+<body vid="7">
+
+    
+    <div id="map" vid="8"></div>
+
+    
+    <div id="ui-layer" vid="9">
+        
+        
+        <div class="top-section" vid="10">
+            <div class="top-row interactive" vid="11">
+                <button class="icon-pill" vid="12">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vid="13"><line x1="3" y1="12" x2="21" y2="12" vid="14"></line><line x1="3" y1="6" x2="21" y2="6" vid="15"></line><line x1="3" y1="18" x2="21" y2="18" vid="16"></line></svg>
+                </button>
+
+                <div class="weather-widget" vid="17">
+                    <svg class="weather-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vid="18"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" vid="19"></path></svg>
+                    <span class="weather-temp" vid="20">18°</span>
+                </div>
+            </div>
+
+            
+            <div class="filters-scroll interactive" vid="21">
+                <button class="filter-tag tag-all" vid="22">All</button>
+                <button class="filter-tag tag-gym" vid="23">Gyms</button>
+                <button class="filter-tag tag-food" vid="24">Healthy Food</button>
+                <button class="filter-tag tag-saved" vid="25">Saved</button>
+                <button class="filter-tag tag-saved" vid="26">Buddies</button>
+            </div>
+        </div>
+
+        
+        <div class="calendar-widget panel interactive" vid="27">
+            <div class="widget-header" vid="28">
+                <div vid="29">
+                    <h2 class="widget-title" vid="30">Schedule</h2>
+                    <p class="widget-subtitle" vid="31">2 sessions this week</p>
+                </div>
+                <div class="header-actions" vid="32">
+                    <button class="btn-small" vid="33">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vid="34"><line x1="12" y1="5" x2="12" y2="19" vid="35"></line><line x1="5" y1="12" x2="19" y2="12" vid="36"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            
+            <div class="nested-card texture-grid" vid="37">
+                <div class="booking-main" vid="38">
+                    <div class="booking-info" vid="39">
+                        <span class="booking-place" vid="40">Iron Temple Gym</span>
+                        <div class="booking-time" vid="41">
+                            <div class="status-dot" vid="42"></div>
+                            Today, 18:00
+                        </div>
+                    </div>
+                    <div class="avatar-group" vid="43">
+                        
+                        <div class="avatar" vid="44">👨🏽‍s</div>
+                        <div class="avatar" vid="45">👱🏼‍♀️</div>
+                    </div>
+                </div>
+                
+                <div class="card-actions" vid="46">
+                    <button class="btn-primary" vid="47">Directions</button>
+                    <button class="btn-secondary" vid="48">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="49"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" vid="50"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            
+            <div class="list-section" vid="51">
+                <div class="list-header" vid="52">Upcoming</div>
+                
+                <div class="list-item" vid="53">
+                    <div class="list-icon" vid="54">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="55"><path d="M18 8h1a4 4 0 0 1 0 8h-1" vid="56"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" vid="57"></path><line x1="6" y1="1" x2="6" y2="4" vid="58"></line><line x1="10" y1="1" x2="10" y2="4" vid="59"></line><line x1="14" y1="1" x2="14" y2="4" vid="60"></line></svg>
+                    </div>
+                    <div class="list-text" vid="61">
+                        <span class="list-title" vid="62">Post-workout meal</span>
+                        <span class="list-sub" vid="63">Green Bowl • Tomorrow, 19:30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" vid="64"></script>
+    <script vid="65">
+        
+        
+        const map = L.map('map', {
+            zoomControl: false, 
+            attributionControl: false
+        }).setView([51.505, -0.09], 14);
+
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        
+        const createCustomIcon = (type) => {
+            return L.divIcon({
+                className: `custom-marker marker-${type}`,
+                iconSize: type === 'user' ? [20, 20] : [24, 24],
+                iconAnchor: type === 'user' ? [10, 10] : [12, 12]
+            });
+        };
+
+        
+        const markers = [
+            { loc: [51.505, -0.09], type: 'user' }, 
+            { loc: [51.508, -0.11], type: 'gym' },  
+            { loc: [51.503, -0.08], type: 'gym' },  
+            { loc: [51.51, -0.095], type: 'food' }, 
+            { loc: [51.498, -0.085], type: 'food' } 
+        ];
+
+        markers.forEach(data => {
+            L.marker(data.loc, { icon: createCustomIcon(data.type) }).addTo(map);
+        });
+    </script>
+
+</body></html>

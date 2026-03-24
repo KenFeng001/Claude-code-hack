@@ -141,7 +141,7 @@ export default function PersonalityQuizScreen() {
       : null;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: '#000000' }]}>
       <FlatList
         ref={flatListRef}
         data={state.messages}
@@ -162,7 +162,7 @@ export default function PersonalityQuizScreen() {
       />
 
       {state.phase === 'awaiting-answer' && currentQuestion && (
-        <View style={[styles.chipsContainer, { borderTopColor: colors.borderColor }]}>
+        <View style={[styles.chipsContainer, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
           <AnswerChips
             answers={currentQuestion.answers}
             onSelect={handleAnswer}
