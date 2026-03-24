@@ -1,0 +1,369 @@
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+    <title vid="4">GymSurf - Active Session</title>
+    <style vid="5">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-white: #FFFFFF;
+            --bg-gray: #EBEAE5;
+            --bg-light: #FAFAFA;
+            --accent-coral: #F06A4D;
+            --accent-yellow: #F5BA55;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --border-color: #E0E0E0;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --pad-main: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #D1D1D1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        #app-container {
+            width: 393px;
+            height: 852px;
+            background-color: var(--bg-white);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-radius: 40px;
+            border: 8px solid #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            padding: 40px var(--pad-main) 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .status-pill {
+            background: var(--bg-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-coral);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-coral);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 0 var(--pad-main);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0;
+            position: relative;
+        }
+
+        .progress-ring-svg {
+            transform: rotate(-90deg);
+            width: 220px;
+            height: 220px;
+        }
+
+        .progress-ring-circle-bg {
+            fill: transparent;
+            stroke: var(--bg-light);
+            stroke-width: 8;
+        }
+
+        .progress-ring-circle {
+            fill: transparent;
+            stroke: var(--accent-coral);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 628; 
+            stroke-dashoffset: 180;
+            transition: stroke-dashoffset 0.3s;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-val {
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .workout-title {
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            margin-bottom: 24px;
+        }
+
+        .exercise-card {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-card.active {
+            border: 1px solid var(--accent-coral);
+            background: #FFF;
+        }
+
+        .exercise-card.done {
+            opacity: 0.5;
+        }
+
+        .ex-info h4 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .ex-info p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .ex-sets {
+            display: flex;
+            gap: 4px;
+        }
+
+        .set-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+        }
+
+        .set-dot.active {
+            background: var(--accent-coral);
+        }
+
+        .set-dot.completed {
+            background: var(--text-main);
+        }
+
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px var(--pad-main) 40px;
+            background: linear-gradient(to top, var(--bg-white) 80%, transparent);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-pause {
+            flex: 1;
+            height: 60px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-finish {
+            flex: 2;
+            height: 60px;
+            border-radius: 16px;
+            background: var(--accent-coral);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-list {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .mini-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--accent-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body vid="6">
+
+<div id="app-container" vid="7">
+    <div class="header" vid="8">
+        <div class="logo" vid="9">GS</div>
+        <div class="status-pill" vid="10">
+            <div class="pulse-dot" vid="11"></div>
+            LIVE SESSION
+        </div>
+    </div>
+
+    <div class="content" vid="12">
+        <div class="timer-container" vid="13">
+            <svg class="progress-ring-svg" vid="14">
+                <circle class="progress-ring-circle-bg" cx="110" cy="110" r="100" vid="15"></circle>
+                <circle class="progress-ring-circle" cx="110" cy="110" r="100" vid="16"></circle>
+            </svg>
+            <div class="timer-display" vid="17">
+                <div class="timer-val" vid="18">34:12</div>
+                <div class="timer-label" vid="19">Elapsed</div>
+            </div>
+        </div>
+
+        <div class="badge-list" vid="20">
+            <div class="mini-badge" title="Hypertrophy Mode" vid="21">H</div>
+            <div class="mini-badge" style="background: var(--bg-light);" title="Rest Time" vid="22">⏱</div>
+            <div class="mini-badge" style="background: #E0F2FE; color: #0369A1;" title="Hydration" vid="23">💧</div>
+        </div>
+
+        <h2 class="workout-title" vid="24">Barcelona Iron</h2>
+
+        <div class="exercise-card done" vid="25">
+            <div class="ex-info" vid="26">
+                <h4 vid="27">Barbell Squats</h4>
+                <p vid="28">4 sets • 10 reps • 80kg</p>
+            </div>
+            <div class="ex-sets" vid="29">
+                <div class="set-dot completed" vid="30"></div>
+                <div class="set-dot completed" vid="31"></div>
+                <div class="set-dot completed" vid="32"></div>
+                <div class="set-dot completed" vid="33"></div>
+            </div>
+        </div>
+
+        <div class="exercise-card active" vid="34">
+            <div class="ex-info" vid="35">
+                <h4 vid="36">Pull Ups</h4>
+                <p vid="37">3 sets • Max reps</p>
+            </div>
+            <div class="ex-sets" vid="38">
+                <div class="set-dot completed" vid="39"></div>
+                <div class="set-dot active" vid="40"></div>
+                <div class="set-dot" vid="41"></div>
+            </div>
+        </div>
+
+        <div class="exercise-card" vid="42">
+            <div class="ex-info" vid="43">
+                <h4 vid="44">Kettlebell Swings</h4>
+                <p vid="45">4 sets • 15 reps • 24kg</p>
+            </div>
+            <div class="ex-sets" vid="46">
+                <div class="set-dot" vid="47"></div>
+                <div class="set-dot" vid="48"></div>
+                <div class="set-dot" vid="49"></div>
+                <div class="set-dot" vid="50"></div>
+            </div>
+        </div>
+        
+        <div class="exercise-card" vid="51">
+            <div class="ex-info" vid="52">
+                <h4 vid="53">Core Stability</h4>
+                <p vid="54">3 sets • 60s Plank</p>
+            </div>
+            <div class="ex-sets" vid="55">
+                <div class="set-dot" vid="56"></div>
+                <div class="set-dot" vid="57"></div>
+                <div class="set-dot" vid="58"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-controls" vid="59">
+        <button class="btn-pause" vid="60">
+            <span vid="61">||</span> Pause
+        </button>
+        <button class="btn-finish" vid="62">
+            Finish Workout
+        </button>
+    </div>
+</div>
+
+</body></html>

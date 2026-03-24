@@ -1,0 +1,319 @@
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+    <title vid="4">GymSurf Gear Rental</title>
+    <style vid="5">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --bg-white: #FFFFFF;
+            --bg-gray: #EBEAE5;
+            --bg-light: #FAFAFA;
+            --accent-coral: #F06A4D;
+            --accent-yellow: #F5BA55;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --border-color: #E0E0E0;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --pad-main: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #D1D1D1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        #app-container {
+            width: 393px;
+            height: 852px;
+            background-color: var(--bg-white);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-radius: 40px;
+            border: 8px solid #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            padding: 40px var(--pad-main) 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 0 var(--pad-main);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 120px;
+        }
+
+        .label-small {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .huge-title {
+            font-size: 44px;
+            font-weight: 300;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .price-badge {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--accent-coral);
+            margin-bottom: 32px;
+        }
+
+        
+        .gear-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            gap: 16px;
+        }
+
+        .gear-visual {
+            width: 56px;
+            height: 56px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .gear-info {
+            flex-grow: 1;
+        }
+
+        .gear-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .gear-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .quantity-picker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        
+        .visual-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 60px;
+            margin-top: 40px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .chart-line {
+            flex: 1;
+            background-color: var(--bg-gray);
+            border-radius: 2px 2px 0 0;
+            min-height: 4px;
+        }
+
+        .chart-line.active {
+            background-color: var(--accent-yellow);
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px var(--pad-main) 40px;
+            background: linear-gradient(to top, var(--bg-white) 80%, transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-text {
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 400;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-next {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-icon-square {
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--text-main);
+            border-radius: 12px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body vid="6">
+
+<div id="app-container" vid="7">
+    <div class="header" vid="8">
+        <div class="logo" vid="9">GS</div>
+        <div class="btn-text" vid="10">Details</div>
+    </div>
+
+    <div class="content" vid="11">
+        <div class="label-small" vid="12">Barcelona Surf &amp; Iron</div>
+        <h1 class="huge-title" vid="13">Inventory</h1>
+        <div class="price-badge" vid="14">$12 <span style="font-size: 14px; color: var(--text-muted);" vid="15">/ day base</span></div>
+
+        
+        <div class="gear-item" vid="16">
+            <div class="gear-visual" vid="17">🏋️</div>
+            <div class="gear-info" vid="18">
+                <div class="gear-name" vid="19">Olympic Barbell</div>
+                <div class="gear-sub" vid="20">20kg • Rogue Ohio</div>
+            </div>
+            <div class="quantity-picker" vid="21">
+                <button class="qty-btn" vid="22">−</button>
+                <span vid="23">1</span>
+                <button class="qty-btn" vid="24">+</button>
+            </div>
+        </div>
+
+        <div class="gear-item" vid="25">
+            <div class="gear-visual" vid="26">🔔</div>
+            <div class="gear-info" vid="27">
+                <div class="gear-name" vid="28">Kettlebells</div>
+                <div class="gear-sub" vid="29">16kg - 32kg range</div>
+            </div>
+            <div class="quantity-picker" vid="30">
+                <button class="qty-btn" vid="31">−</button>
+                <span vid="32">2</span>
+                <button class="qty-btn" vid="33">+</button>
+            </div>
+        </div>
+
+        <div class="gear-item" vid="34">
+            <div class="gear-visual" vid="35">⭕</div>
+            <div class="gear-info" vid="36">
+                <div class="gear-name" vid="37">Gymnastic Rings</div>
+                <div class="gear-sub" vid="38">Wooden • Adjustable</div>
+            </div>
+            <div class="quantity-picker" vid="39">
+                <button class="qty-btn" vid="40">−</button>
+                <span vid="41">0</span>
+                <button class="qty-btn" vid="42">+</button>
+            </div>
+        </div>
+
+        
+        <div class="visual-chart" vid="43">
+            <div class="chart-line" style="height: 20%" vid="44"></div>
+            <div class="chart-line" style="height: 35%" vid="45"></div>
+            <div class="chart-line" style="height: 50%" vid="46"></div>
+            <div class="chart-line active" style="height: 85%" vid="47"></div>
+            <div class="chart-line" style="height: 70%" vid="48"></div>
+            <div class="chart-line" style="height: 40%" vid="49"></div>
+            <div class="chart-line" style="height: 30%" vid="50"></div>
+            <div class="chart-line" style="height: 15%" vid="51"></div>
+            <div class="chart-line" style="height: 10%" vid="52"></div>
+            <div class="chart-line" style="height: 5%" vid="53"></div>
+        </div>
+        <div class="chart-labels" vid="54">
+            <span vid="55">Now (Busy)</span>
+            <span vid="56">Projected Crowd</span>
+            <span vid="57">10 PM</span>
+        </div>
+        
+        <p class="label-small" style="line-height: 1.5;" vid="58">
+            * Items are sanitized between rentals. Insurance included for normal wear and tear.
+        </p>
+    </div>
+
+    <div class="bottom-controls" vid="59">
+        <button class="btn-text" vid="60">Cancel</button>
+        <div class="btn-next" vid="61">
+            <span class="btn-text" vid="62">Reserve Gear</span>
+            <button class="btn-icon-square" vid="63">→</button>
+        </div>
+    </div>
+</div>
+
+
+</body></html>
